@@ -30,13 +30,13 @@ qrSocket.on('message', (msg, rinfo) => {
     io.emit('qr-code-detected', qrData);
 
     // Example: Control Tello based on QR code
-    if (qrData === 'takeoff') {
-        console.log('Command: Takeoff');
-        // Send Tello takeoff command here
-    } else if (qrData === 'land') {
-        console.log('Command: Land');
-        // Send Tello land command here
-    }
+    // if (qrData === 'takeoff') {
+    //     console.log('Command: Takeoff');
+    //     // Send Tello takeoff command here
+    // } else if (qrData === 'land') {
+    //     console.log('Command: Land');
+    //     // Send Tello land command here
+    // }
 });
 
 qrSocket.bind(QR_PORT, () => {
