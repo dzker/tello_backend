@@ -8,82 +8,31 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            text-align: center;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            background-color: #f4f4f9;
         }
-
         h1 {
             color: #333;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
         }
-
-        .status {
-            background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 300px;
-            margin-bottom: 20px;
-        }
-
-        .status p {
-            font-size: 1.2rem;
-            color: #555;
-            margin: 10px 0;
-        }
-
-        .status .highlight {
-            font-weight: bold;
+        #qr-data {
+            font-size: 1.5rem;
             color: #007BFF;
-        }
-
-        footer {
-            font-size: 0.9rem;
-            color: #888;
-            position: absolute;
-            bottom: 10px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Tello QR Code Scanner</h1>
-    
-    <div class="status">
-        <p>QR Code: <span id="qr-data" class="highlight">Waiting for QR codes...</span></p>
-        <p>Status: <span id="tello-status" class="highlight">Idle</span></p>
-    </div>
-
-    <footer>Powered by Tello Drone and Node.js</footer>
+    <p id="qr-data">Waiting for QR codes...</p>
 
     <script>
         const socket = io();
 
-        // Update QR Code data
         socket.on('qr-code-detected', (data) => {
-            document.getElementById('qr-data').textContent = data;
-            updateTelloStatus(data);
+            document.getElementById('qr-data').textContent = `QR Code: ${data}`;
         });
-
-        // Function to update Tello drone status based on QR code
-        function updateTelloStatus(qrData) {
-            const statusElement = document.getElementById('tello-status');
-            if (qrData === 'takeoff') {
-                statusElement.textContent = 'Taking Off...';
-            } else if (qrData === 'land') {
-                statusElement.textContent = 'Landing...';
-            } else {
-                statusElement.textContent = 'Idle';
-            }
-        }
     </script>
 </body>
 </html>
