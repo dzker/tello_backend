@@ -3,35 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tello QR Code Scanner</title>
+    <title>Tello Drone Control</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
+            margin-top: 50px;
         }
         h1 {
             color: #333;
         }
-        #qr-data {
-            font-size: 1.5rem;
-            color: #007BFF;
-            margin-top: 20px;
+        #instructions {
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
-    <h1>Tello QR Code Scanner</h1>
-    <p id="qr-data">Waiting for QR codes...</p>
+    <h1>Tello Drone Control</h1>
+    <div id="instructions">
+        <p>Use the following keys to control the drone:</p>
+        <ul>
+            <li><b>Arrow Up:</b> Move forward</li>
+            <li><b>Arrow Down:</b> Move backward</li>
+            <li><b>Arrow Left:</b> Move left</li>
+            <li><b>Arrow Right:</b> Move right</li>
+            <li><b>W:</b> Move up</li>
+            <li><b>S:</b> Move down</li>
+            <li><b>A:</b> Rotate counter-clockwise</li>
+            <li><b>D:</b> Rotate clockwise</li>
+            <li><b>T:</b> Take off</li>
+            <li><b>L:</b> Land</li>
+        </ul>
+    </div>
+    <p id="status">Status: Waiting for commands...</p>
 
     <script>
         const socket = io();
 
-        socket.on('qr-code-detected', (data) => {
-            document.getElementById('qr-data').textContent = `QR Code: ${data}`;
+        // Display status updates
+        const statusElement = document.getElementById("status");
+        function updateStatus(message) {
+            statusElement.textContent = `Status: ${message}`;
+        }
+
+        // Listen for keypress events
+        document.addEventListener("keydown", (event) => {
+            let command = null;
+
+            switch (event.key) {
+                case "ArrowUp":
+                    command = "forward";
+                    break;
+                case "ArrowDown":
+                    command = "backward";
+                    break;
+                case "ArrowLeft":
+                    command = "left";
+                    break;
+                case "ArrowRight":
+                    command = "right";
+                    break;
+                case "w":
+                    command = "up";
+                    break;
+                case "s":
+                    command = "down";
+                    break;
+                case "a":
+                    command = "rotate_ccw";
+                    break;
+                case "d":
+                    command = "rotate_cw";
+                    break;
+                case "t":
+                    command = "takeoff";
+                    break;
+                case "l":
+                    command = "land";
+                    break;
+            }
+
+            if (command) {
+                updateStatus(`Command sent: ${command}`);
+                socket.emit("drone-command", command);
+            }
         });
     </script>
 </body>

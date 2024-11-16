@@ -1,48 +1,41 @@
 const express = require('express');
-const dgram = require('dgram');
 const http = require('http');
 const { Server } = require('socket.io');
-const path = require('path'); // Import path module for resolving file paths
+const dgram = require('dgram');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 const PORT = 3000;
-const QR_PORT = 4000;
+const PYTHON_PORT = 5000; // Port for communication with Python backend
+const PYTHON_HOST = '127.0.0.1'; // Python backend address
 
-// Serve static files from the 'public' folder
-app.use(express.static(path.join(__dirname, 'test_front_end')));
+const udpClient = dgram.createSocket('udp4');
 
-// Handle root route to serve index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'test_front_end', 'index.html'));
-});
+// Serve static files
+app.use(express.static('test_front_end'));
 
-// Socket.IO for real-time communication
 io.on('connection', (socket) => {
     console.log('A user connected');
+
+    // Listen for commands from the frontend
+    socket.on('drone-command', (command) => {
+        console.log(`Command received: ${command}`);
+        
+        // Forward command to the Python backend
+        udpClient.send(command, PYTHON_PORT, PYTHON_HOST, (err) => {
+            if (err) {
+                console.error(`Error sending command: ${err}`);
+            }
+        });
+    });
 
     socket.on('disconnect', () => {
         console.log('A user disconnected');
     });
 });
 
-// UDP socket for receiving QR data from Python
-const qrSocket = dgram.createSocket('udp4');
-qrSocket.on('message', (msg) => {
-    const qrData = msg.toString();
-    console.log('QR Code Received:', qrData);
-
-    // Broadcast QR data to the frontend
-    io.emit('qr-code-detected', qrData);
-});
-
-qrSocket.bind(QR_PORT, () => {
-    console.log(`Listening for QR code data on port ${QR_PORT}`);
-});
-
-// Start the server
 server.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
